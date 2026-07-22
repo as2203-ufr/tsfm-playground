@@ -70,11 +70,44 @@ The check script verifies:
 - basic consistency between X, y, and phi
 
 The dataset check passed.
+## DataLoader and first training run
+
+Added:
+
+- `scripts/check_ar_loader.py`
+- updated `scripts/training.py`
+
+The AR(1) fixed dataset is now connected to a PyTorch `Dataset` and `DataLoader`.
+
+The DataLoader check produced the expected batch shapes:
+
+- `X`: `[64, 64]`
+- `y`: `[64]`
+- `phi`: `[64, 1]`
+
+A first scalar-token transformer training run was implemented in `scripts/training.py`.
+
+Current training setup:
+
+- dataset: fixed AR(1), `phi = 0.7`
+- context length: 64
+- task: predict the next value
+- loss: mean squared error
+- model input: one scalar timestep per token
+
+The first training run completed and printed training/validation loss for 20 epochs.
+
+Current result:
+
+- analytic AR(1) baseline validation MSE: approximately `0.9665`
+- final transformer validation MSE: approximately `0.9845`
+
+This means the training pipeline works, but the model does not yet outperform the analytic AR(1) baseline. The next step is to improve the training setup or model configuration.
 
 ## Next steps
 
-- Connect the AR(1) dataset to a PyTorch Dataset/DataLoader.
-- Create or complete the training pipeline in `scripts/training.py`.
-- Run first AR(1) fixed-coefficient training.
-- Modify the provided model to remove patching or use scalar tokenization.
-- Later extend data generation to AR(2), AR(3), and AR(5).
+- Improve the AR(1) training run so the model gets closer to or better than the analytic baseline.
+- Clarify whether scalar tokenization should be implemented by setting `patch_size = 1` and `patch_stride = 1`, or by fully removing the patching module.
+- Add attention extraction for the AR(1) model.
+- Add perturbation-based lag sensitivity for AR(1).
+- Later extend data generation and training to AR(2), AR(3), and AR(5).
